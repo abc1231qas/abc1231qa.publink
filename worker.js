@@ -2,10 +2,10 @@
 // 1. 全域設定
 // ==========================================
 // 管理後台的密碼
-const ADMIN_PASSWORD = "0 2k6"; 
+const ADMIN_PASSWORD = "0 2k6";
 
 // 管理後台的路徑 (你可以改成只有你知道的亂碼，例如 "my-secret-door")
-const ADMIN_PATH = "admin"; 
+const ADMIN_PATH = "admin";
 
 export default {
   async fetch(request, env) {
@@ -16,7 +16,7 @@ export default {
     // ==========================================
     // 2. API 邏輯區 (保持不變，僅路徑微調)
     // ==========================================
-    
+
     // 處理 API: 新增/刪除 (需驗證密碼)
     if (url.pathname === "/api/manage" && request.method === "POST") {
       try {
@@ -26,7 +26,7 @@ export default {
         if (data.action === "add") {
           // 防呆：避免覆蓋掉管理路徑
           if (data.key === ADMIN_PATH || data.key === "api") return new Response("此短碼為系統保留", { status: 400 });
-          
+
           await env.SHORT_URLS.put(data.key, data.value);
           return new Response("成功新增");
         } else if (data.action === "delete") {
@@ -54,15 +54,15 @@ export default {
 
     // 情境 A: 根目錄 -> 顯示個人介紹頁 (Public)
     if (path === "") {
-      return new Response(generateIntroHTML(), { 
-        headers: { "Content-Type": "text/html;charset=UTF-8" } 
+      return new Response(generateIntroHTML(), {
+        headers: { "Content-Type": "text/html;charset=UTF-8" }
       });
     }
 
     // 情境 B: 管理路徑 -> 顯示後台 (Private)
     if (path === ADMIN_PATH) {
-      return new Response(generateAdminHTML(), { 
-        headers: { "Content-Type": "text/html;charset=UTF-8" } 
+      return new Response(generateAdminHTML(), {
+        headers: { "Content-Type": "text/html;charset=UTF-8" }
       });
     }
 
@@ -74,9 +74,9 @@ export default {
     }
 
     // 情境 D: 真的找不到 -> 404 頁面 (或導回首頁)
-    return new Response(generate404HTML(), { 
-      status: 404, 
-      headers: { "Content-Type": "text/html;charset=UTF-8" } 
+    return new Response(generate404HTML(), {
+      status: 404,
+      headers: { "Content-Type": "text/html;charset=UTF-8" }
     });
   }
 };
@@ -96,38 +96,242 @@ function generateIntroHTML() {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>關於我 | Personal Profile</title>
+    <title>靜 · 觀 | Contemplation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-      :root { --primary: #2d3436; --accent: #0984e3; --bg: #dfe6e9; }
-      body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-      .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; transition: transform 0.3s; }
-      .card:hover { transform: translateY(-5px); }
-      .avatar { width: 120px; height: 120px; background: #b2bec3; border-radius: 50%; margin: 0 auto 20px; object-fit: cover; }
-      h1 { margin: 0; color: var(--primary); font-size: 1.8rem; }
-      p { color: #636e72; line-height: 1.6; margin-top: 10px; }
-      .links { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; }
-      .btn { display: block; padding: 12px; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
-      .btn:hover { background: var(--accent); }
-      .footer { margin-top: 30px; font-size: 0.8rem; color: #b2bec3; }
-      /* 隱藏的入口樣式 */
-      .secret-link { color: inherit; text-decoration: none; cursor: default; }
+      /* ==================== 配色系統 ==================== */
+      :root {
+        --bg-rice: #F7F7F5;
+        --ink-black: #2C2C2C;
+        --text-deep: #333333;
+        --text-mid: #595959;
+        --gold-muted: #C5A065;
+        --gold-light: rgba(197, 160, 101, 0.15);
+      }
+      
+      /* ==================== 基礎排版 ==================== */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      
+      body {
+        font-family: 'Noto Serif TC', 'PMingLiU', serif;
+        background: var(--bg-rice);
+        color: var(--text-mid);
+        line-height: 1.8;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+      }
+      
+      /* ==================== 主容器 - 居中對稱 ==================== */
+      .zen-container {
+        max-width: 680px;
+        width: 100%;
+        text-align: center;
+        position: relative;
+      }
+      
+      /* ==================== 水墨圓圈裝飾 (Enso) ==================== */
+      .enso {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 80px;
+        position: relative;
+        opacity: 0;
+        animation: fadeIn 1.2s ease-out 0.3s forwards;
+      }
+      
+      .enso::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 3px solid var(--ink-black);
+        border-radius: 50%;
+        opacity: 0.85;
+        transform: rotate(-15deg);
+        border-top-color: transparent;
+        border-right-color: transparent;
+      }
+      
+      .enso::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        background: var(--gold-muted);
+        border-radius: 50%;
+        box-shadow: 0 0 20px var(--gold-muted);
+      }
+      
+      /* ==================== 標題區 ==================== */
+      h1 {
+        font-size: 2.8rem;
+        font-weight: 300;
+        color: var(--text-deep);
+        letter-spacing: 0.15em;
+        margin-bottom: 30px;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 0.6s forwards;
+      }
+      
+      .subtitle {
+        font-size: 1rem;
+        color: var(--text-mid);
+        letter-spacing: 0.3em;
+        margin-bottom: 60px;
+        opacity: 0.7;
+        font-weight: 300;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 0.9s forwards;
+      }
+      
+      /* ==================== 金色分隔線 ==================== */
+      .divider {
+        width: 60px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-muted), transparent);
+        margin: 50px auto;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 1.2s forwards;
+      }
+      
+      /* ==================== 內文區 ==================== */
+      .description {
+        max-width: 480px;
+        margin: 0 auto 70px;
+        font-size: 1.05rem;
+        line-height: 2;
+        color: var(--text-mid);
+        opacity: 0;
+        animation: fadeIn 1s ease-out 1.5s forwards;
+      }
+      
+      /* ==================== 連結區 - 極簡按鈕 ==================== */
+      .links {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        max-width: 360px;
+        margin: 0 auto;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 1.8s forwards;
+      }
+      
+      .zen-link {
+        display: block;
+        padding: 16px 32px;
+        color: var(--text-deep);
+        text-decoration: none;
+        border: 1px solid rgba(44, 44, 44, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 0.1em;
+        font-size: 0.95rem;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .zen-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--gold-light);
+        transition: left 0.5s ease;
+        z-index: -1;
+      }
+      
+      .zen-link:hover::before {
+        left: 0;
+      }
+      
+      .zen-link:hover {
+        border-color: var(--gold-muted);
+        color: var(--ink-black);
+        transform: translateY(-2px);
+      }
+      
+      /* ==================== 頁尾 ==================== */
+      .footer {
+        margin-top: 100px;
+        font-size: 0.85rem;
+        color: rgba(89, 89, 89, 0.5);
+        letter-spacing: 0.05em;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 2.1s forwards;
+      }
+      
+      .secret-link {
+        color: inherit;
+        text-decoration: none;
+        opacity: 0.3;
+        transition: opacity 0.3s;
+      }
+      
+      .secret-link:hover {
+        opacity: 1;
+      }
+      
+      /* ==================== 動畫 ==================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* ==================== 響應式 ==================== */
+      @media (max-width: 640px) {
+        h1 { font-size: 2rem; }
+        .enso { width: 140px; height: 140px; margin-bottom: 60px; }
+        .description { font-size: 1rem; }
+      }
     </style>
   </head>
   <body>
-    <div class="card">
-      <img src="https://ui-avatars.com/api/?name=Me&background=random&size=256" alt="Avatar" class="avatar">
+    <div class="zen-container">
+      <!-- 水墨圓圈 -->
+      <div class="enso"></div>
       
-      <h1>Hello, I'm Developer</h1>
-      <p>這裡是用來寫自我介紹的地方。全端開發者 / 技術愛好者 / 旅遊達人。<br>目前網站建置中。</p>
+      <!-- 標題 -->
+      <h1>靜觀</h1>
+      <div class="subtitle">CONTEMPLATION</div>
       
-      <div class="links">
-        <a href="#" class="btn">Github</a>
-        <a href="#" class="btn">Email Me</a>
-        <a href="/blog" class="btn" style="background: white; color: #333; border: 1px solid #ddd;">My Blog</a>
+      <!-- 金色分隔線 -->
+      <div class="divider"></div>
+      
+      <!-- 描述 -->
+      <div class="description">
+        於喧囂中尋一方淨土<br>
+        在代碼裡悟人生哲理<br>
+        技術與人文的交匯處<br>
+        即是心之所向
       </div>
-
+      
+      <!-- 連結 -->
+      <div class="links">
+        <a href="#" class="zen-link">Github</a>
+        <a href="#" class="zen-link">Email</a>
+        <a href="/blog" class="zen-link">Blog</a>
+      </div>
+      
+      <!-- 頁尾 -->
       <div class="footer">
-        &copy; 2026 Personal Site. <a href="/${ADMIN_PATH}" class="secret-link">π</a>
+        © 2026 · <a href="/${ADMIN_PATH}" class="secret-link">◯</a>
       </div>
     </div>
   </body>
@@ -140,11 +344,110 @@ function generateIntroHTML() {
  */
 function generate404HTML() {
   return `
-    <div style="font-family:sans-serif; text-align:center; padding:50px;">
-      <h1>404 Not Found</h1>
-      <p>哎呀，這裡什麼都沒有。</p>
-      <a href="/" style="color:#0984e3;">回到首頁</a>
+  <!DOCTYPE html>
+  <html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迷途 | Lost</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-rice: #F7F7F5;
+        --ink-black: #2C2C2C;
+        --text-deep: #333333;
+        --text-mid: #595959;
+        --gold-muted: #C5A065;
+      }
+      
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      
+      body {
+        font-family: 'Noto Serif TC', 'PMingLiU', serif;
+        background: var(--bg-rice);
+        color: var(--text-mid);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      
+      .container {
+        text-align: center;
+        max-width: 500px;
+      }
+      
+      .number {
+        font-size: 8rem;
+        font-weight: 300;
+        color: var(--ink-black);
+        opacity: 0.15;
+        letter-spacing: 0.2em;
+        margin-bottom: 40px;
+        animation: fadeIn 0.8s ease-out;
+      }
+      
+      h1 {
+        font-size: 2rem;
+        font-weight: 300;
+        color: var(--text-deep);
+        letter-spacing: 0.2em;
+        margin-bottom: 20px;
+        animation: fadeIn 1s ease-out 0.2s backwards;
+      }
+      
+      p {
+        font-size: 1.1rem;
+        line-height: 2;
+        color: var(--text-mid);
+        margin-bottom: 50px;
+        animation: fadeIn 1s ease-out 0.4s backwards;
+      }
+      
+      .link {
+        display: inline-block;
+        padding: 14px 40px;
+        color: var(--text-deep);
+        text-decoration: none;
+        border: 1px solid rgba(44, 44, 44, 0.2);
+        letter-spacing: 0.1em;
+        transition: all 0.4s ease;
+        animation: fadeIn 1s ease-out 0.6s backwards;
+      }
+      
+      .link:hover {
+        border-color: var(--gold-muted);
+        color: var(--gold-muted);
+        transform: translateY(-2px);
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="number">404</div>
+      <h1>迷途</h1>
+      <p>
+        此處無路可循<br>
+        不如返回原點
+      </p>
+      <a href="/" class="link">返回首頁</a>
     </div>
+  </body>
+  </html>
   `;
 }
 

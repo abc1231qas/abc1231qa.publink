@@ -1,0 +1,37 @@
+name = "url-shortener"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# KV 命名空間綁定
+# 請先執行: wrangler kv:namespace create "SHORT_URLS"
+# 然後將返回的 ID 填入下方
+kv_namespaces = [
+  { binding = "SHORT_URLS", id = "YOUR_KV_NAMESPACE_ID_HERE" }
+]
+
+# 路由設定（如果使用自訂域名）
+# routes = [
+#   { pattern = "example.com/*", zone_name = "example.com" }
+# ]
+
+# 環境變數（不建議在此儲存敏感資訊）
+# [vars]
+# SOME_PUBLIC_VAR = "value"
+
+# 建議使用 Secrets 儲存密碼
+# 執行: wrangler secret put ADMIN_PASSWORD
+# 然後輸入你的密碼
+
+# 開發環境設定
+[env.dev]
+name = "url-shortener-dev"
+kv_namespaces = [
+  { binding = "SHORT_URLS", id = "YOUR_DEV_KV_NAMESPACE_ID_HERE" }
+]
+
+# 生產環境設定
+[env.production]
+name = "url-shortener-prod"
+kv_namespaces = [
+  { binding = "SHORT_URLS", id = "YOUR_PROD_KV_NAMESPACE_ID_HERE" }
+]

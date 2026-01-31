@@ -117,6 +117,10 @@ function generateIntroHTML() {
       body {
         font-family: 'Noto Serif TC', 'PMingLiU', serif;
         background: var(--bg-rice);
+        /* 加入紙張紋理效果 */
+        background-image: 
+          radial-gradient(circle at 20% 50%, rgba(197, 160, 101, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(44, 44, 44, 0.02) 0%, transparent 50%);
         color: var(--text-mid);
         line-height: 1.8;
         min-height: 100vh;
@@ -144,6 +148,7 @@ function generateIntroHTML() {
         animation: fadeIn 1.2s ease-out 0.3s forwards;
       }
       
+      /* 主要水墨圓圈 */
       .enso::before {
         content: '';
         position: absolute;
@@ -157,8 +162,13 @@ function generateIntroHTML() {
         transform: rotate(-15deg);
         border-top-color: transparent;
         border-right-color: transparent;
+        /* 加入陰影模擬墨韻 */
+        box-shadow: 
+          0 0 20px rgba(44, 44, 44, 0.1),
+          inset 0 0 10px rgba(44, 44, 44, 0.05);
       }
       
+      /* 中心金色光點 */
       .enso::after {
         content: '';
         position: absolute;
@@ -169,7 +179,9 @@ function generateIntroHTML() {
         height: 8px;
         background: var(--gold-muted);
         border-radius: 50%;
-        box-shadow: 0 0 20px var(--gold-muted);
+        box-shadow: 
+          0 0 20px var(--gold-muted),
+          0 0 40px rgba(197, 160, 101, 0.3);
       }
       
       /* ==================== 標題區 ==================== */

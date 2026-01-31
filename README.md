@@ -133,17 +133,23 @@ wrangler deploy
 
 ### 訪問個人主頁
 ```
-https://你的域名.workers.dev/
+https://abc1231qa.cc/
+或
+https://me.abc1231qa.workers.dev/
 ```
 
 ### 訪問管理後台
 ```
-https://你的域名.workers.dev/admin
+https://abc1231qa.cc/admin
+或
+https://me.abc1231qa.workers.dev/admin
 ```
 
 ### 使用短網址
 ```
-https://你的域名.workers.dev/短碼
+https://abc1231qa.cc/短碼
+或
+https://me.abc1231qa.workers.dev/短碼
 ```
 
 ## 🔧 自訂設定

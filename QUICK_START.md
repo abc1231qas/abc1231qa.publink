@@ -136,7 +136,7 @@ const ADMIN_PATH = "my-secret-admin-2026";  // 改成難以猜測的路徑
 2. 選擇你的 Worker
 3. 點擊「Triggers」
 4. 新增「Custom Domain」
-5. 輸入你的網域（例如：`s.yourdomain.com`）
+5. 輸入你的網域（例如：`abc1231qa.cc` 或 `me.abc1231qa.workers.dev`）
 
 ### 啟用分析功能
 
@@ -167,6 +167,7 @@ enabled = true
 - 修改標題為你的名字
 - 更新描述為你的個人簡介
 - 加入你的社交媒體連結
+- 範例網址：`https://abc1231qa.cc` 或 `https://me.abc1231qa.workers.dev`
 
 ### 場景 2：專案展示頁
 - 標題改為專案名稱

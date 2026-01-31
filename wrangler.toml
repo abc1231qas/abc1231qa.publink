@@ -3,10 +3,8 @@ main = "worker.js"
 compatibility_date = "2024-01-01"
 
 # KV 命名空間綁定
-# 請先執行: wrangler kv:namespace create "SHORT_URLS"
-# 然後將返回的 ID 填入下方
 kv_namespaces = [
-  { binding = "SHORT_URLS", id = "YOUR_KV_NAMESPACE_ID_HERE" }
+  { binding = "SHORT_URLS", id = "aa440a6f6b1c44d6986b94911229f851" }
 ]
 
 # 路由設定（如果使用自訂域名）

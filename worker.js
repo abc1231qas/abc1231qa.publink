@@ -471,50 +471,329 @@ function generate404HTML() {
 }
 
 /**
- * 產生管理後台 HTML (原本的 generateHTML 改名而來)
+ * 產生管理後台 HTML (Zen 美學風格)
  */
 function generateAdminHTML() {
   return `
   <!DOCTYPE html>
-  <html>
+  <html lang="zh-TW">
   <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系統後台</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理後台 | Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f7f6; padding: 20px; }
-      .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-      h2 { text-align: center; color: #333; }
-      input { padding: 12px; margin: 8px 0; width: 100%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 6px; }
-      button { padding: 12px; background: #0070f3; color: white; border: none; cursor: pointer; width: 100%; border-radius: 6px; font-weight: bold; transition: 0.2s; }
-      button:hover { background: #0051a2; }
-      button:disabled { background: #ccc; cursor: not-allowed; }
-      .list-container { margin-top: 20px; }
-      .list-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; align-items: center; background: #fff; }
-      .list-item:last-child { border-bottom: none; }
-      .list-info { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
-      .del-btn { background: #ff4d4f; width: auto; padding: 6px 12px; font-size: 14px; margin-left: 10px; }
-      .del-btn:hover { background: #d9363e; }
-      a { color: #0070f3; text-decoration: none; }
-      a:hover { text-decoration: underline; }
-      .back-home { display:block; text-align:center; margin-top:20px; color:#999; font-size:0.9rem; }
+      /* ==================== 配色系統 (與首頁一致) ==================== */
+      :root {
+        --bg-rice: #F7F7F5;
+        --ink-black: #2C2C2C;
+        --text-deep: #333333;
+        --text-mid: #595959;
+        --gold-muted: #C5A065;
+        --gold-light: rgba(197, 160, 101, 0.15);
+        --border-subtle: rgba(44, 44, 44, 0.15);
+      }
+      
+      /* ==================== 基礎排版 ==================== */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      
+      body {
+        font-family: 'Noto Serif TC', 'PMingLiU', serif;
+        background: var(--bg-rice);
+        background-image: 
+          radial-gradient(circle at 20% 50%, rgba(197, 160, 101, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(44, 44, 44, 0.02) 0%, transparent 50%);
+        color: var(--text-mid);
+        line-height: 1.8;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+      
+      /* ==================== 主容器 ==================== */
+      .zen-container {
+        max-width: 680px;
+        width: 100%;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 0.2s forwards;
+      }
+      
+      /* ==================== 標題區 ==================== */
+      .page-title {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 300;
+        color: var(--text-deep);
+        letter-spacing: 0.2em;
+        margin-bottom: 12px;
+      }
+      
+      .subtitle {
+        font-size: 0.9rem;
+        color: var(--text-mid);
+        letter-spacing: 0.3em;
+        opacity: 0.6;
+        font-weight: 300;
+      }
+      
+      /* ==================== 金色分隔線 ==================== */
+      .divider {
+        width: 60px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-muted), transparent);
+        margin: 40px auto;
+      }
+      
+      /* ==================== 表單區 ==================== */
+      .form-section {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid var(--border-subtle);
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+      
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: var(--text-deep);
+        letter-spacing: 0.1em;
+        margin-bottom: 25px;
+        text-align: center;
+      }
+      
+      /* ==================== 輸入框 ==================== */
+      input {
+        width: 100%;
+        padding: 14px 18px;
+        margin: 10px 0;
+        border: 1px solid var(--border-subtle);
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--text-deep);
+        font-family: 'Noto Serif TC', serif;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        letter-spacing: 0.05em;
+      }
+      
+      input:focus {
+        outline: none;
+        border-color: var(--gold-muted);
+        background: white;
+      }
+      
+      input::placeholder {
+        color: var(--text-mid);
+        opacity: 0.5;
+      }
+      
+      /* ==================== 按鈕 ==================== */
+      button {
+        width: 100%;
+        padding: 14px 32px;
+        margin-top: 15px;
+        background: transparent;
+        color: var(--text-deep);
+        border: 1px solid var(--border-subtle);
+        font-family: 'Noto Serif TC', serif;
+        font-size: 0.95rem;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--gold-light);
+        transition: left 0.5s ease;
+        z-index: -1;
+      }
+      
+      button:hover::before {
+        left: 0;
+      }
+      
+      button:hover {
+        border-color: var(--gold-muted);
+        color: var(--ink-black);
+        transform: translateY(-2px);
+      }
+      
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      button:disabled:hover::before {
+        left: -100%;
+      }
+      
+      /* ==================== 列表區 ==================== */
+      .list-container {
+        margin-top: 20px;
+      }
+      
+      .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 0;
+        border-bottom: 1px solid var(--border-subtle);
+        transition: background 0.3s ease;
+      }
+      
+      .list-item:last-child {
+        border-bottom: none;
+      }
+      
+      .list-item:hover {
+        background: var(--gold-light);
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      
+      .list-info {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-right: 15px;
+      }
+      
+      .short-code {
+        color: var(--text-deep);
+        font-weight: 400;
+        letter-spacing: 0.05em;
+      }
+      
+      .arrow {
+        color: var(--gold-muted);
+        margin: 0 8px;
+        opacity: 0.6;
+      }
+      
+      .target-url {
+        color: var(--text-mid);
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      
+      .target-url:hover {
+        color: var(--gold-muted);
+      }
+      
+      /* ==================== 刪除按鈕 ==================== */
+      .del-btn {
+        width: auto;
+        padding: 8px 20px;
+        margin: 0;
+        font-size: 0.85rem;
+        border-color: rgba(197, 160, 101, 0.3);
+        color: var(--text-mid);
+      }
+      
+      .del-btn:hover {
+        border-color: var(--gold-muted);
+        background: transparent;
+        color: var(--text-deep);
+      }
+      
+      /* ==================== 空狀態 ==================== */
+      .empty-state {
+        padding: 40px 20px;
+        text-align: center;
+        color: var(--text-mid);
+        opacity: 0.6;
+        font-size: 0.95rem;
+        letter-spacing: 0.1em;
+      }
+      
+      /* ==================== 返回連結 ==================== */
+      .back-home {
+        display: block;
+        text-align: center;
+        margin-top: 50px;
+        color: var(--text-mid);
+        text-decoration: none;
+        font-size: 0.9rem;
+        letter-spacing: 0.1em;
+        opacity: 0.5;
+        transition: opacity 0.3s ease;
+      }
+      
+      .back-home:hover {
+        opacity: 1;
+        color: var(--gold-muted);
+      }
+      
+      /* ==================== 動畫 ==================== */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* ==================== 響應式 ==================== */
+      @media (max-width: 640px) {
+        h1 { font-size: 1.8rem; }
+        .form-section { padding: 20px; }
+        .list-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .del-btn { width: 100%; }
+      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h2>🔗 縮網址管理 (Private)</h2>
-      <input type="password" id="pw" placeholder="請輸入管理密碼">
-      
-      <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px;">
-        <h4 style="margin-top:0;">新增縮網址</h4>
-        <input type="text" id="newKey" placeholder="短碼 (例如: fb)">
-        <input type="text" id="newVal" placeholder="目標網址 (https://...)">
-        <button onclick="manage('add')">➕ 新增連結</button>
+    <div class="zen-container">
+      <!-- 標題 -->
+      <div class="page-title">
+        <h1>管理後台</h1>
+        <div class="subtitle">ADMIN PANEL</div>
       </div>
-
-      <h4 style="margin-bottom: 10px;">目前清單</h4>
-      <div id="list" class="list-container">載入中...</div>
       
-      <a href="/" class="back-home">← 回到個人首頁</a>
+      <div class="divider"></div>
+      
+      <!-- 密碼輸入 -->
+      <div class="form-section">
+        <input type="password" id="pw" placeholder="請輸入管理密碼">
+      </div>
+      
+      <!-- 新增區 -->
+      <div class="form-section">
+        <div class="section-title">新增縮網址</div>
+        <input type="text" id="newKey" placeholder="短碼 (例如: blog)">
+        <input type="text" id="newVal" placeholder="目標網址 (https://...)">
+        <button onclick="manage('add')">新增連結</button>
+      </div>
+      
+      <!-- 列表區 -->
+      <div class="form-section">
+        <div class="section-title">目前清單</div>
+        <div id="list" class="list-container">
+          <div class="empty-state">載入中...</div>
+        </div>
+      </div>
+      
+      <a href="/" class="back-home">← 返回首頁</a>
     </div>
 
     <script>
@@ -522,9 +801,9 @@ function generateAdminHTML() {
         return \`
           <div class="list-item" id="item-\${key}">
             <div class="list-info">
-              <b style="color:#333;">/\${key}</b> 
-              <span style="color:#999; margin: 0 5px;">→</span> 
-              <a href="\${value}" target="_blank">\${value}</a>
+              <span class="short-code">/\${key}</span>
+              <span class="arrow">→</span>
+              <a href="\${value}" target="_blank" class="target-url">\${value}</a>
             </div>
             <button class="del-btn" onclick="manage('delete', '\${key}')">刪除</button>
           </div>
@@ -537,12 +816,12 @@ function generateAdminHTML() {
           const res = await fetch('/api/list');
           const data = await res.json();
           if (data.length === 0) {
-            listDiv.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">目前沒有任何縮網址</div>';
+            listDiv.innerHTML = '<div class="empty-state">目前沒有任何縮網址</div>';
             return;
           }
           listDiv.innerHTML = data.map(item => createItemHTML(item.key, item.value)).join('');
         } catch (e) {
-          listDiv.innerHTML = '<div style="color:red; text-align:center;">載入失敗，請檢查網路</div>';
+          listDiv.innerHTML = '<div class="empty-state" style="color: var(--gold-muted);">載入失敗，請檢查網路</div>';
         }
       }
 
@@ -579,6 +858,12 @@ function generateAdminHTML() {
             } else {
               const itemToRemove = document.getElementById('item-' + key);
               if(itemToRemove) itemToRemove.remove();
+              
+              // 檢查是否清空
+              const remainingItems = document.querySelectorAll('.list-item');
+              if(remainingItems.length === 0) {
+                document.getElementById('list').innerHTML = '<div class="empty-state">目前沒有任何縮網址</div>';
+              }
             }
           } else {
             alert(await res.text());

@@ -7,26 +7,80 @@ const ADMIN_PASSWORD = "0 2k6";
 // 管理後台的路徑 (你可以改成只有你知道的亂碼，例如 "my-secret-door")
 const ADMIN_PATH = "admin";
 
+// Session 密鑰（用於簽名 Cookie）
+const SESSION_SECRET = "zen-admin-secret-2026";
+
+// Session 有效期（24小時）
+const SESSION_DURATION = 24 * 60 * 60 * 1000;
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    // 去除路徑前後的斜線，避免 /admin/ 與 /admin 判定不同
     const path = url.pathname.replace(/^\/|\/$/g, "");
 
     // ==========================================
-    // 2. API 邏輯區 (保持不變，僅路徑微調)
+    // 2. 認證 API 區
     // ==========================================
 
-    // 處理 API: 新增/刪除 (需驗證密碼)
-    if (url.pathname === "/api/manage" && request.method === "POST") {
+    // 處理登入請求
+    if (url.pathname === "/api/login" && request.method === "POST") {
       try {
         const data = await request.json();
-        if (data.password !== ADMIN_PASSWORD) return new Response("密碼錯誤", { status: 403 });
+        if (data.password === ADMIN_PASSWORD) {
+          // 生成 Session Token
+          const token = await generateSessionToken();
+          const expires = new Date(Date.now() + SESSION_DURATION);
 
+          return new Response(JSON.stringify({ success: true }), {
+            headers: {
+              "Content-Type": "application/json",
+              "Set-Cookie": `admin_session=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=${expires.toUTCString()}`
+            }
+          });
+        } else {
+          return new Response(JSON.stringify({ success: false, error: "密碼錯誤" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: "請求錯誤" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // 處理登出請求
+    if (url.pathname === "/api/logout" && request.method === "POST") {
+      return new Response(JSON.stringify({ success: true }), {
+        headers: {
+          "Content-Type": "application/json",
+          "Set-Cookie": "admin_session=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+        }
+      });
+    }
+
+    // ==========================================
+    // 3. API 邏輯區（需要認證）
+    // ==========================================
+
+    // 處理 API: 新增/刪除（需要 Session 認證）
+    if (url.pathname === "/api/manage" && request.method === "POST") {
+      // 驗證 Session
+      if (!await verifySession(request)) {
+        return new Response(JSON.stringify({ error: "未授權" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+
+      try {
+        const data = await request.json();
         if (data.action === "add") {
-          // 防呆：避免覆蓋掉管理路徑
-          if (data.key === ADMIN_PATH || data.key === "api") return new Response("此短碼為系統保留", { status: 400 });
-
+          if (data.key === ADMIN_PATH || data.key === "api") {
+            return new Response("此短碼為系統保留", { status: 400 });
+          }
           await env.SHORT_URLS.put(data.key, data.value);
           return new Response("成功新增");
         } else if (data.action === "delete") {
@@ -38,18 +92,28 @@ export default {
       }
     }
 
-    // 處理 API: 讀取列表 (公開或私有看需求，目前保持公開但前端不顯示入口)
+    // 處理 API: 讀取列表（需要 Session 認證）
     if (url.pathname === "/api/list") {
+      // 驗證 Session
+      if (!await verifySession(request)) {
+        return new Response(JSON.stringify({ error: "未授權" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+
       const list = await env.SHORT_URLS.list();
       const items = await Promise.all(list.keys.map(async (k) => ({
         key: k.name,
         value: await env.SHORT_URLS.get(k.name)
       })));
-      return new Response(JSON.stringify(items), { headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify(items), {
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
     // ==========================================
-    // 2.5 R2 圖片 API 區
+    // 4. R2 圖片 API 區
     // ==========================================
 
     // 處理圖片請求：/images/xxx.png
@@ -68,7 +132,7 @@ export default {
     }
 
     // ==========================================
-    // 3. 頁面路由區 (Router)
+    // 5. 頁面路由區 (Router)
     // ==========================================
 
     // 情境 A: 根目錄 -> 顯示個人介紹頁 (Public)
@@ -78,21 +142,30 @@ export default {
       });
     }
 
-    // 情境 B: 管理路徑 -> 顯示後台 (Private)
+    // 情境 B: 管理路徑 -> 檢查認證後顯示對應頁面
     if (path === ADMIN_PATH) {
-      return new Response(generateAdminHTML(), {
-        headers: { "Content-Type": "text/html;charset=UTF-8" }
-      });
+      const isAuthenticated = await verifySession(request);
+
+      if (isAuthenticated) {
+        // 已登入，顯示管理後台
+        return new Response(generateAdminHTML(), {
+          headers: { "Content-Type": "text/html;charset=UTF-8" }
+        });
+      } else {
+        // 未登入，顯示登入頁面
+        return new Response(generateLoginHTML(), {
+          headers: { "Content-Type": "text/html;charset=UTF-8" }
+        });
+      }
     }
 
     // 情境 C: 縮網址轉址 logic
-    // 先從 KV 找
     const targetUrl = await env.SHORT_URLS.get(path);
     if (targetUrl) {
       return Response.redirect(targetUrl, 301);
     }
 
-    // 情境 D: 真的找不到 -> 404 頁面 (或導回首頁)
+    // 情境 D: 404 頁面
     return new Response(generate404HTML(), {
       status: 404,
       headers: { "Content-Type": "text/html;charset=UTF-8" }
@@ -101,8 +174,351 @@ export default {
 };
 
 // ==========================================
+// 認證輔助函數
+// ==========================================
+
+/**
+ * 生成 Session Token
+ */
+async function generateSessionToken() {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2);
+  const data = `${timestamp}-${random}`;
+
+  // 使用 Web Crypto API 生成簽名
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data + SESSION_SECRET);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  return `${data}.${hashHex}`;
+}
+
+/**
+ * 驗證 Session
+ */
+async function verifySession(request) {
+  const cookieHeader = request.headers.get('Cookie');
+  if (!cookieHeader) return false;
+
+  const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=');
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  const sessionToken = cookies['admin_session'];
+  if (!sessionToken) return false;
+
+  // 驗證 Token 格式
+  const parts = sessionToken.split('.');
+  if (parts.length !== 2) return false;
+
+  const [data, signature] = parts;
+
+  // 重新計算簽名
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data + SESSION_SECRET);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const expectedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  // 比對簽名
+  if (signature !== expectedSignature) return false;
+
+  // 檢查時間戳（防止過期）
+  const timestamp = parseInt(data.split('-')[0]);
+  if (Date.now() - timestamp > SESSION_DURATION) return false;
+
+  return true;
+}
+
+// ==========================================
 // 4. HTML 生成區 (View Layer)
 // ==========================================
+
+/**
+ * 產生登入頁面 (Login Page)
+ * 風格：Zen 美學
+ */
+function generateLoginHTML() {
+  return `
+  <!DOCTYPE html>
+  <html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理登入 | Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+      /* ==================== 配色系統 ==================== */
+      :root {
+        --bg-rice: #F7F7F5;
+        --ink-black: #2C2C2C;
+        --text-deep: #333333;
+        --text-mid: #595959;
+        --gold-muted: #C5A065;
+        --gold-light: rgba(197, 160, 101, 0.15);
+        --border-subtle: rgba(44, 44, 44, 0.15);
+      }
+      
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      
+      body {
+        font-family: 'Noto Serif TC', 'PMingLiU', serif;
+        background: var(--bg-rice);
+        background-image: 
+          radial-gradient(circle at 20% 50%, rgba(197, 160, 101, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(44, 44, 44, 0.02) 0%, transparent 50%);
+        color: var(--text-mid);
+        line-height: 1.8;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+      
+      .login-container {
+        max-width: 420px;
+        width: 100%;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 0.2s forwards;
+      }
+      
+      .page-title {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 300;
+        color: var(--text-deep);
+        letter-spacing: 0.2em;
+        margin-bottom: 12px;
+      }
+      
+      .subtitle {
+        font-size: 0.9rem;
+        color: var(--text-mid);
+        letter-spacing: 0.3em;
+        opacity: 0.6;
+        font-weight: 300;
+      }
+      
+      .divider {
+        width: 60px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-muted), transparent);
+        margin: 40px auto;
+      }
+      
+      .login-form {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid var(--border-subtle);
+        padding: 40px;
+      }
+      
+      .form-group {
+        margin-bottom: 25px;
+      }
+      
+      label {
+        display: block;
+        font-size: 0.95rem;
+        color: var(--text-deep);
+        margin-bottom: 10px;
+        letter-spacing: 0.1em;
+      }
+      
+      input[type="password"] {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1px solid var(--border-subtle);
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--text-deep);
+        font-family: 'Noto Serif TC', serif;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        letter-spacing: 0.05em;
+      }
+      
+      input[type="password"]:focus {
+        outline: none;
+        border-color: var(--gold-muted);
+        background: white;
+      }
+      
+      button {
+        width: 100%;
+        padding: 14px 32px;
+        margin-top: 15px;
+        background: transparent;
+        color: var(--text-deep);
+        border: 1px solid var(--border-subtle);
+        font-family: 'Noto Serif TC', serif;
+        font-size: 0.95rem;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--gold-light);
+        transition: left 0.5s ease;
+        z-index: -1;
+      }
+      
+      button:hover::before {
+        left: 0;
+      }
+      
+      button:hover {
+        border-color: var(--gold-muted);
+        color: var(--ink-black);
+        transform: translateY(-2px);
+      }
+      
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .error-message {
+        margin-top: 15px;
+        padding: 12px;
+        background: rgba(197, 160, 101, 0.1);
+        border: 1px solid var(--gold-muted);
+        color: var(--text-deep);
+        text-align: center;
+        font-size: 0.9rem;
+        display: none;
+      }
+      
+      .back-home {
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        color: var(--text-mid);
+        text-decoration: none;
+        font-size: 0.9rem;
+        letter-spacing: 0.1em;
+        opacity: 0.5;
+        transition: opacity 0.3s ease;
+      }
+      
+      .back-home:hover {
+        opacity: 1;
+        color: var(--gold-muted);
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @media (max-width: 640px) {
+        h1 { font-size: 1.8rem; }
+        .login-form { padding: 30px 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="page-title">
+        <h1>管理登入</h1>
+        <div class="subtitle">ADMIN LOGIN</div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="login-form">
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="password">密碼</label>
+            <input type="password" id="password" name="password" required autofocus>
+          </div>
+          
+          <button type="submit" id="loginBtn">登入</button>
+          
+          <div id="errorMessage" class="error-message"></div>
+        </form>
+      </div>
+      
+      <a href="/" class="back-home">← 返回首頁</a>
+    </div>
+
+    <script>
+      async function handleLogin(event) {
+        event.preventDefault();
+        
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('loginBtn');
+        const errorMsg = document.getElementById('errorMessage');
+        
+        // 隱藏錯誤訊息
+        errorMsg.style.display = 'none';
+        
+        // 禁用按鈕
+        btn.disabled = true;
+        btn.innerText = '登入中...';
+        
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // 登入成功，重新載入頁面（會自動顯示管理後台）
+            window.location.reload();
+          } else {
+            // 登入失敗，顯示錯誤訊息
+            errorMsg.textContent = data.error || '密碼錯誤';
+            errorMsg.style.display = 'block';
+            btn.disabled = false;
+            btn.innerText = '登入';
+            
+            // 清空密碼欄位
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
+          }
+        } catch (error) {
+          errorMsg.textContent = '連線錯誤，請稍後再試';
+          errorMsg.style.display = 'block';
+          btn.disabled = false;
+          btn.innerText = '登入';
+        }
+      }
+    </script>
+  </body>
+  </html>
+  `;
+}
 
 /**
  * 產生個人介紹頁面 (Homepage)
@@ -343,9 +759,9 @@ function generateIntroHTML() {
       
       <!-- 連結 -->
       <div class="links">
-        <a href="#" class="zen-link">Github</a>
-        <a href="#" class="zen-link">Email</a>
-        <a href="/blog" class="zen-link">Blog</a>
+        <a href="https://github.com/abc1231qas/abc1231qa.publink" target="_blank" rel="noopener noreferrer" class="zen-link">Github</a>
+        <a href="mailto:abc1231qa@gmail.com" class="zen-link">Email</a>
+        <a href="https://vocus.cc/salon/abc1231qa" target="_blank" rel="noopener noreferrer" class="zen-link">Blog</a>
       </div>
       
       <!-- 頁尾 -->
@@ -772,11 +1188,6 @@ function generateAdminHTML() {
       
       <div class="divider"></div>
       
-      <!-- 密碼輸入 -->
-      <div class="form-section">
-        <input type="password" id="pw" placeholder="請輸入管理密碼">
-      </div>
-      
       <!-- 新增區 -->
       <div class="form-section">
         <div class="section-title">新增縮網址</div>
@@ -793,7 +1204,10 @@ function generateAdminHTML() {
         </div>
       </div>
       
-      <a href="/" class="back-home">← 返回首頁</a>
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+        <a href="/" class="back-home" style="margin: 0;">← 返回首頁</a>
+        <button onclick="handleLogout()" class="del-btn" style="width: auto; padding: 8px 20px; margin: 0;">登出</button>
+      </div>
     </div>
 
     <script>
@@ -826,14 +1240,12 @@ function generateAdminHTML() {
       }
 
       async function manage(action, key) {
-        const password = document.getElementById('pw').value;
         const keyInput = document.getElementById('newKey');
         const valInput = document.getElementById('newVal');
         
         const reqKey = action === 'add' ? keyInput.value.trim() : key;
         const reqVal = action === 'add' ? valInput.value.trim() : '';
 
-        if(!password) { alert('請輸入管理密碼'); return; }
         if(action === 'add' && (!reqKey || !reqVal)) { alert('短碼與網址都不能為空'); return; }
 
         const btn = event.target;
@@ -843,8 +1255,9 @@ function generateAdminHTML() {
 
         try {
           const res = await fetch('/api/manage', { 
-            method: 'POST', 
-            body: JSON.stringify({ action, password, key: reqKey, value: reqVal }) 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, key: reqKey, value: reqVal }) 
           });
 
           if (res.ok) {
@@ -866,13 +1279,31 @@ function generateAdminHTML() {
               }
             }
           } else {
-            alert(await res.text());
+            const errorData = await res.json();
+            if (res.status === 401) {
+              // Session 過期，重新導向到登入頁面
+              alert('登入已過期，請重新登入');
+              window.location.reload();
+            } else {
+              alert(errorData.error || '操作失敗');
+            }
           }
         } catch (err) {
           alert('連線發生錯誤');
         } finally {
           btn.innerText = originalText;
           btn.disabled = false;
+        }
+      }
+
+      async function handleLogout() {
+        if (!confirm('確定要登出嗎？')) return;
+        
+        try {
+          await fetch('/api/logout', { method: 'POST' });
+          window.location.href = '/';
+        } catch (err) {
+          alert('登出失敗');
         }
       }
 

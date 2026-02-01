@@ -18,7 +18,7 @@ const LLMS_TXT_CONTENT = `# Title: abc1231qa 的數位花園 - 技術架構與�
 # Description: 專注於全端開發 (Cloudflare Workers, R2)、系統架構設計、Generative AI 應用，以及信仰哲學與地誌觀察的深度整合。
 
 ## 核心文檔 (Core Context)
-- [我堅持十年的事]: https://vocus.cc/article/679de87afd89780001859c86 (長期主義、技術價值觀)
+- [我堅持十年的事]: https://vocus.cc/article/694794d7fd897800019af738 (長期主義、技術價值觀)
 - [技術架構集]: https://vocus.cc/salon/abc1231qa/room/digital-leverage (Serverless, Cloudflare Workers, System Design)
 - [地誌與信仰]: https://vocus.cc/salon/abc1231qa/room/underlying-logic (人文思考、哲學)
 
@@ -1051,12 +1051,12 @@ function generateIntroHTML() {
       <section class="section">
         <h2 class="section-title">精選作品</h2>
         <div class="works-grid">
-          <a href="https://vocus.cc/article/67826a58fd897800017d4ee9" target="_blank" class="work-card">
+          <a href="https://vocus.cc/article/691d160ffd89780001ad48ad" target="_blank" class="work-card">
             <div class="icon">📊</div>
             <h3>NBA 戰績表系統</h3>
             <p>從 API 抓取數據到自動生成戰績表，Python + Telegram Bot 整合。</p>
           </a>
-          <a href="https://vocus.cc/article/679a7d56fd89780001a2e0a9" target="_blank" class="work-card">
+          <a href="https://vocus.cc/post/68ede6aefd8978000148bf19" target="_blank" class="work-card">
             <div class="icon">🤖</div>
             <h3>Telegram Bot 服務化</h3>
             <p>免費仔的自動化解決方案，本機服務 + Ngrok 穿透。</p>
@@ -1074,7 +1074,7 @@ function generateIntroHTML() {
         <h2 class="section-title">最新思考</h2>
         <ul class="thinking-list">
           <li>
-            <a href="https://vocus.cc/article/679de87afd89780001859c86" target="_blank">
+            <a href="https://vocus.cc/article/694794d7fd897800019af738" target="_blank">
               <span class="thinking-title">我堅持十年的事</span>
               <span class="thinking-category">底層邏輯</span>
             </a>
@@ -1086,13 +1086,13 @@ function generateIntroHTML() {
             </a>
           </li>
           <li>
-            <a href="https://vocus.cc/article/679730e8fd897800019adda7" target="_blank">
+            <a href="https://vocus.cc/article/6934d2c8fd897800019c4924" target="_blank">
               <span class="thinking-title">AI 搜尋時代的內容策略恆久之道</span>
               <span class="thinking-category">底層邏輯</span>
             </a>
           </li>
           <li>
-            <a href="https://vocus.cc/article/678f7daafd89780001fe65af" target="_blank">
+            <a href="https://vocus.cc/article/692a71f2fd89780001ebb182" target="_blank">
               <span class="thinking-title">雙重歸屬：在兩種信仰中尋找靈性滋養</span>
               <span class="thinking-category">底層邏輯</span>
             </a>
@@ -2021,7 +2021,7 @@ function generateWorksHTML() {
                 <span>NBA API</span>
                 <span>Telegram Bot</span>
               </div>
-              <a href="https://vocus.cc/article/67826a58fd897800017d4ee9" target="_blank" class="work-link">查看文章 →</a>
+              <a href="https://vocus.cc/article/691d160ffd89780001ad48ad" target="_blank" class="work-link">查看文章 →</a>
             </div>
           </article>
           
@@ -2035,7 +2035,7 @@ function generateWorksHTML() {
                 <span>Ngrok</span>
                 <span>Windows Service</span>
               </div>
-              <a href="https://vocus.cc/article/679a7d56fd89780001a2e0a9" target="_blank" class="work-link">查看文章 →</a>
+              <a href="https://vocus.cc/post/68ede6aefd8978000148bf19" target="_blank" class="work-link">查看文章 →</a>
             </div>
           </article>
           
@@ -2071,9 +2071,9 @@ function generateWorksHTML() {
           <div class="writing-category">
             <h3>🧠 底層邏輯</h3>
             <ul>
-              <li><a href="https://vocus.cc/article/679de87afd89780001859c86" target="_blank">我堅持十年的事</a></li>
-              <li><a href="https://vocus.cc/article/679730e8fd897800019adda7" target="_blank">AI 搜尋時代的內容策略恆久之道</a></li>
-              <li><a href="https://vocus.cc/article/678f7daafd89780001fe65af" target="_blank">雙重歸屬：在兩種信仰中尋找靈性滋養</a></li>
+              <li><a href="https://vocus.cc/article/694794d7fd897800019af738" target="_blank">我堅持十年的事</a></li>
+              <li><a href="https://vocus.cc/article/6934d2c8fd897800019c4924" target="_blank">AI 搜尋時代的內容策略恆久之道</a></li>
+              <li><a href="https://vocus.cc/article/692a71f2fd89780001ebb182" target="_blank">雙重歸屬：在兩種信仰中尋找靈性滋養</a></li>
             </ul>
           </div>
         </div>
@@ -2133,8 +2133,8 @@ function generateBlogHTML() {
             <li><a href="https://vocus.cc/article/68a72c83fd89780001b793d8" target="_blank">如何建立 Gemini 自訂腳色：Gem</a></li>
             <li><a href="https://vocus.cc/article/6780cd1cfd897800017f7eca" target="_blank">4 招解鎖 NotebookLM 簡報的隱藏潛能</a></li>
             <li><a href="https://vocus.cc/article/679ba70afd89780001a6d3af" target="_blank">如何寫提示詞的提示詞</a></li>
-            <li><a href="https://vocus.cc/article/67826a58fd897800017d4ee9" target="_blank">NBA 戰績表系統</a></li>
-            <li><a href="https://vocus.cc/article/679a7d56fd89780001a2e0a9" target="_blank">Telegram Bot 服務化</a></li>
+            <li><a href="https://vocus.cc/article/691d160ffd89780001ad48ad" target="_blank">NBA 戰績表系統</a></li>
+            <li><a href="https://vocus.cc/post/68ede6aefd8978000148bf19" target="_blank">Telegram Bot 服務化</a></li>
           </ul>
           <a href="https://vocus.cc/salon/abc1231qa/room/digital-leverage" target="_blank" class="category-link">查看全部 →</a>
         </article>
@@ -2146,9 +2146,9 @@ function generateBlogHTML() {
           </div>
           <p class="category-desc">思想、文化、信仰、認同</p>
           <ul class="article-list">
-            <li><a href="https://vocus.cc/article/679de87afd89780001859c86" target="_blank">我堅持十年的事</a></li>
-            <li><a href="https://vocus.cc/article/679730e8fd897800019adda7" target="_blank">AI 搜尋時代的內容策略恆久之道</a></li>
-            <li><a href="https://vocus.cc/article/678f7daafd89780001fe65af" target="_blank">雙重歸屬：在兩種信仰中尋找靈性滋養</a></li>
+            <li><a href="https://vocus.cc/article/694794d7fd897800019af738" target="_blank">我堅持十年的事</a></li>
+            <li><a href="https://vocus.cc/article/6934d2c8fd897800019c4924" target="_blank">AI 搜尋時代的內容策略恆久之道</a></li>
+            <li><a href="https://vocus.cc/article/692a71f2fd89780001ebb182" target="_blank">雙重歸屬：在兩種信仰中尋找靈性滋養</a></li>
             <li><a href="https://vocus.cc/article/6784e6b2fd8978000181d424" target="_blank">不是終國人</a></li>
           </ul>
           <a href="https://vocus.cc/salon/abc1231qa/room/underlying-logic" target="_blank" class="category-link">查看全部 →</a>

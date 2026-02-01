@@ -49,6 +49,25 @@ export default {
     }
 
     // ==========================================
+    // 2.5 R2 圖片 API 區
+    // ==========================================
+
+    // 處理圖片請求：/images/xxx.png
+    if (url.pathname.startsWith('/images/')) {
+      return handleImageRequest(url, env);
+    }
+
+    // 處理圖片上傳 API（需驗證密碼）
+    if (url.pathname === "/api/upload-image" && request.method === "POST") {
+      return handleImageUpload(request, env);
+    }
+
+    // 處理圖片列表 API
+    if (url.pathname === "/api/images" && request.method === "GET") {
+      return handleListImages(env);
+    }
+
+    // ==========================================
     // 3. 頁面路由區 (Router)
     // ==========================================
 
@@ -138,7 +157,7 @@ function generateIntroHTML() {
         position: relative;
       }
       
-      /* ==================== 水墨圓圈裝飾 (Enso) ==================== */
+      /* ==================== 水墨圓圈裝飾 (Enso) - 使用 R2 圖片 ==================== */
       .enso {
         width: 180px;
         height: 180px;
@@ -146,29 +165,17 @@ function generateIntroHTML() {
         position: relative;
         opacity: 0;
         animation: fadeIn 1.2s ease-out 0.3s forwards;
+        /* 使用 R2 儲存的真實水墨圓圈圖片 */
+        background-image: url('/images/zen_enso.png');
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
       }
       
-      /* 主要水墨圓圈 */
-      .enso::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: 3px solid var(--ink-black);
-        border-radius: 50%;
-        opacity: 0.85;
-        transform: rotate(-15deg);
-        border-top-color: transparent;
-        border-right-color: transparent;
-        /* 加入陰影模擬墨韻 */
-        box-shadow: 
-          0 0 20px rgba(44, 44, 44, 0.1),
-          inset 0 0 10px rgba(44, 44, 44, 0.05);
-      }
+      /* 移除原本的 CSS 繪製圓圈，改用真實圖片 */
+      /* .enso::before 已不需要 */
       
-      /* 中心金色光點 */
+      /* 保留中心金色光點作為點綴 */
       .enso::after {
         content: '';
         position: absolute;
@@ -588,4 +595,208 @@ function generateAdminHTML() {
     </script>
   </body>
   </html>`;
+}
+
+// ==========================================
+// 5. R2 圖片處理函數
+// ==========================================
+
+/**
+ * 處理圖片請求
+ * @param {URL} url - 請求的 URL
+ * @param {Object} env - 環境變數（包含 R2 綁定）
+ */
+async function handleImageRequest(url, env) {
+  // 檢查是否有 R2 綁定
+  if (!env.MY_IMAGES) {
+    return new Response('R2 儲存未設定', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    });
+  }
+
+  // 取得圖片路徑：/images/logo.png -> logo.png
+  const imagePath = url.pathname.replace('/images/', '');
+
+  try {
+    // 從 R2 讀取圖片
+    const object = await env.MY_IMAGES.get(imagePath);
+
+    // 如果圖片不存在
+    if (object === null) {
+      return new Response('圖片不存在', {
+        status: 404,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      });
+    }
+
+    // 建立回應標頭
+    const headers = new Headers();
+
+    // 設定 Content-Type（從 R2 metadata 取得）
+    object.writeHttpMetadata(headers);
+
+    // 設定快取（1 天）
+    headers.set('Cache-Control', 'public, max-age=86400');
+
+    // 允許跨域（如果需要）
+    headers.set('Access-Control-Allow-Origin', '*');
+
+    // 返回圖片
+    return new Response(object.body, { headers });
+
+  } catch (error) {
+    console.error('讀取圖片錯誤:', error);
+    return new Response('讀取圖片時發生錯誤', {
+      status: 500,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    });
+  }
+}
+
+/**
+ * 處理圖片上傳
+ * @param {Request} request - 請求物件
+ * @param {Object} env - 環境變數
+ */
+async function handleImageUpload(request, env) {
+  // 檢查是否有 R2 綁定
+  if (!env.MY_IMAGES) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'R2 儲存未設定'
+    }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    // 驗證密碼
+    const formData = await request.formData();
+    const password = formData.get('password');
+
+    if (password !== ADMIN_PASSWORD) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: '密碼錯誤'
+      }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const file = formData.get('image');
+    if (!file) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: '未選擇檔案'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 驗證檔案類型
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: '不支援的圖片格式（僅支援 JPEG, PNG, WebP, GIF）'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 驗證檔案大小（5MB）
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: '檔案過大（最大 5MB）'
+      }), {
+        status: 413,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 生成檔案名稱（使用時間戳避免衝突）
+    const timestamp = Date.now();
+    const extension = file.name.split('.').pop();
+    const fileName = `upload_${timestamp}.${extension}`;
+
+    // 上傳到 R2
+    await env.MY_IMAGES.put(fileName, file.stream(), {
+      httpMetadata: {
+        contentType: file.type
+      }
+    });
+
+    // 返回圖片 URL
+    return new Response(JSON.stringify({
+      success: true,
+      url: `/images/${fileName}`,
+      fileName: fileName,
+      size: file.size,
+      type: file.type
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('上傳錯誤:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: '上傳失敗：' + error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 列出所有圖片
+ * @param {Object} env - 環境變數
+ */
+async function handleListImages(env) {
+  // 檢查是否有 R2 綁定
+  if (!env.MY_IMAGES) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'R2 儲存未設定'
+    }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    const list = await env.MY_IMAGES.list();
+
+    const images = list.objects.map(obj => ({
+      name: obj.key,
+      size: obj.size,
+      uploaded: obj.uploaded,
+      url: `/images/${obj.key}`
+    }));
+
+    return new Response(JSON.stringify({
+      success: true,
+      count: images.length,
+      images: images
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('列表錯誤:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: '取得列表失敗：' + error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 }

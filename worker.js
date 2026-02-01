@@ -1076,7 +1076,7 @@ function generateIntroHTML() {
           <li>
             <a href="https://vocus.cc/article/694794d7fd897800019af738" target="_blank">
               <span class="thinking-title">我堅持十年的事</span>
-              <span class="thinking-category">底層邏輯</span>
+              <span class="thinking-category">隨機存取</span>
             </a>
           </li>
           <li>

@@ -42,6 +42,13 @@
 - 加入淡入動畫效果
 - 完全統一視覺風格，管理後台現在與首頁完美融合
 
+### 5. 處理之前產生的網頁插圖 (Digital Garden) ✅
+- [x] 定位或重新生成之前為網頁設計的插圖（例如：`digital_garden_hero.png`、`long_termism_concept.png`、`tech_theology_abstract.png`）
+- [x] 將這些圖片正式上傳至 Cloudflare R2 儲存桶 (`my-images`)
+- [x] 確保 `worker.js` 和頁面模板能夠正確從 R2 讀取並顯示這些圖片
+- [x] 測試圖片在實機（手機、電腦）上的顯示效果與效能
+
+
 ---
 
 **建立日期**: 2026-02-01  

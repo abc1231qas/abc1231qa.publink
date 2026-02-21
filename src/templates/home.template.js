@@ -5,7 +5,7 @@ import { getCommonStyles } from './common.template.js';
  * @param {string} ADMIN_PATH - 管理後台路徑
  */
 export function generateIntroHTML(ADMIN_PATH) {
-    return `
+  return `
   <!DOCTYPE html>
   <html lang="zh-TW">
   <head>
@@ -428,6 +428,11 @@ export function generateIntroHTML(ADMIN_PATH) {
     <!-- ==================== CONTENT SECTIONS ==================== -->
     <div class="content-wrapper" id="explore">
       
+      <!-- Hero Banner Image -->
+      <section class="banner-section" style="margin-bottom: 80px; text-align: center; opacity: 0; animation: fadeIn 1s ease-out 0.5s forwards;">
+        <img src="/images/digital_garden_hero.png" alt="Digital Garden" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);" />
+      </section>
+      
       <!-- Featured Works -->
       <section class="section">
         <h2 class="section-title">精選作品</h2>
@@ -500,7 +505,7 @@ export function generateIntroHTML(ADMIN_PATH) {
  * 產生 About 頁面
  */
 export function generateAboutHTML() {
-    return `
+  return `
   <!DOCTYPE html>
   <html lang="zh-TW">
   <head>
@@ -594,6 +599,9 @@ export function generateAboutHTML() {
         <blockquote>
           「長期主義」— 選擇無聊但穩定的技術，將精力留給更有價值的創作。
         </blockquote>
+        <div style="margin-top: 40px; text-align: center; opacity: 0; animation: fadeIn 1s ease-out 0.5s forwards;">
+          <img src="/images/long_termism_concept.png" alt="長期主義概念圖" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.08);" />
+        </div>
       </section>
       
       <div class="cta-section">
@@ -613,7 +621,7 @@ export function generateAboutHTML() {
  * 產生作品集頁面
  */
 export function generateWorksHTML() {
-    return `
+  return `
   <!DOCTYPE html>
   <html lang="zh-TW">
   <head>
@@ -726,7 +734,7 @@ export function generateWorksHTML() {
  * 產生 Blog 頁面
  */
 export function generateBlogHTML() {
-    return `
+  return `
   <!DOCTYPE html>
   <html lang="zh-TW">
   <head>
@@ -754,6 +762,9 @@ export function generateBlogHTML() {
         <h1>文章索引</h1>
         <p class="page-subtitle">BLOG</p>
         <p class="blog-intro">我的文章發布在 <a href="https://vocus.cc/salon/abc1231qa" target="_blank">電光文辭 neon prose</a>，以下是分類導覽。</p>
+        <div style="margin-top: 40px; text-align: center; opacity: 0; animation: fadeIn 1s ease-out 0.5s forwards;">
+          <img src="/images/tech_theology_abstract.png" alt="技術與哲學概念" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.08);" />
+        </div>
       </header>
       
       <section class="blog-categories">

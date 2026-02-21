@@ -1,0 +1,24 @@
+{
+  "name": "abc1231qa.worker.dev",
+  "version": "1.0.0",
+  "description": "一個功能完整、設計現代化的縮網址服務，部署在 Cloudflare Workers 上。",
+  "main": "worker-optimized.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abc1231qas/abc1231qas.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abc1231qas/abc1231qas.github.io/issues"
+  },
+  "homepage": "https://github.com/abc1231qas/abc1231qas.github.io#readme",
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.12.14",
+    "vitest": "^4.0.18"
+  }
+}

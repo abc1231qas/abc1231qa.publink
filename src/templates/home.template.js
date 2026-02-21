@@ -157,6 +157,7 @@ export function generateIntroHTML(ADMIN_PATH) {
       /* Quick Links (Hero) */
       .quick-links {
         display: flex;
+        flex-wrap: wrap;
         gap: 30px;
         justify-content: center;
         margin-bottom: 80px;
@@ -409,9 +410,14 @@ export function generateIntroHTML(ADMIN_PATH) {
       
       <!-- Quick Links -->
       <div class="quick-links">
-        <a href="https://github.com/abc1231qas/abc1231qa.publink" target="_blank">Github</a>
+        <!-- 內部導覽 -->
+        <a href="/about">關於</a>
+        <a href="/works">作品</a>
+        <a href="/blog">文章</a>
+        <!-- 外部連結 -->
+        <a href="https://github.com/abc1231qas/abc1231qa.publink" target="_blank" style="margin-left: 20px;">Github</a>
         <a href="mailto:abc1231qa@gmail.com">Email</a>
-        <a href="https://vocus.cc/salon/abc1231qa" target="_blank">Blog</a>
+        <a href="https://vocus.cc/salon/abc1231qa" target="_blank">Vocus</a>
       </div>
       
       <!-- Scroll Indicator -->

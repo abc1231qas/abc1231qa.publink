@@ -2,7 +2,7 @@
  * 共用樣式
  */
 export function getCommonStyles() {
-    return `
+  return `
   <style>
     :root {
       --bg-rice: #F7F7F5;
@@ -408,6 +408,12 @@ export function getCommonStyles() {
     
     .footer a:hover {
       color: var(--gold-muted);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     /* Responsive */

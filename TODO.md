@@ -2,10 +2,10 @@
 
 ## 待辦事項
 
-### 1. GitHub 改名
-- [ ] 將 GitHub repository 名稱從 `abc1231qas.github.io` 改為更有意義的名稱
+### 1. GitHub 改名 ✅
+- [x] 將 GitHub repository 名稱從 `abc1231qas.github.io` 改為更有意義的名稱 (`abc1231qa.publink`)
 - [x] 確認改名後的影響（GitHub Pages URL、Cloudflare Workers 設定等）
-- [ ] 更新相關文件中的 repository 名稱
+- [x] 更新相關文件中的 repository 名稱
 
 ### 2. 開設 Public 專案 ✅
 - [x] 建立新的 public repository

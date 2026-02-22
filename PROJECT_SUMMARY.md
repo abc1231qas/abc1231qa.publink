@@ -26,7 +26,7 @@
 - ✅ 確認改名後的影響（GitHub Pages URL、Cloudflare Workers 設定等）
 
 **待完成項目**:
-- ⏳ 將 GitHub repository 名稱從 `abc1231qas.github.io` 改為更有意義的名稱
+- ✅ 將 GitHub repository 名稱從 `abc1231qas.github.io` 改為更有意義的名稱 (`abc1231qa.publink`)
 - ⏳ 更新相關文件中的 repository 名稱
 
 **備註**: 您已完成 GitHub 操作部分，剩餘文件更新工作可稍後處理。
@@ -262,7 +262,7 @@ abc1231qa.cc/
 
 **專案網址**: https://abc1231qa.cc  
 **管理後台**: https://abc1231qa.cc/admin  
-**GitHub Repository**: abc1231qas/abc1231qas.github.io  
+**GitHub Repository**: abc1231qas/abc1231qa.publink  
 **技術棧**: Cloudflare Workers + KV + R2  
 
 **建立日期**: 2026-02-01  

@@ -86,6 +86,12 @@ export function generateLoginHTML() {
         margin-bottom: 25px;
       }
       
+      .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      
       label {
         display: block;
         font-size: 0.95rem;
@@ -94,9 +100,9 @@ export function generateLoginHTML() {
         letter-spacing: 0.1em;
       }
       
-      input[type="password"] {
+      input[type="password"], input[type="text"].password-input {
         width: 100%;
-        padding: 14px 18px;
+        padding: 14px 45px 14px 18px;
         border: 1px solid var(--border-subtle);
         background: rgba(255, 255, 255, 0.8);
         color: var(--text-deep);
@@ -106,10 +112,32 @@ export function generateLoginHTML() {
         letter-spacing: 0.05em;
       }
       
-      input[type="password"]:focus {
+      input[type="password"]:focus, input[type="text"].password-input:focus {
         outline: none;
         border-color: var(--gold-muted);
         background: white;
+      }
+      
+      .eye-btn {
+        position: absolute;
+        right: 15px;
+        background: none;
+        border: none;
+        color: var(--text-mid);
+        cursor: pointer;
+        padding: 0;
+        width: auto;
+        margin: 0;
+      }
+      
+      .eye-btn:hover {
+        border-color: transparent;
+        color: var(--gold-muted);
+        transform: none;
+      }
+      
+      .eye-btn::before {
+        display: none;
       }
       
       button {
@@ -214,7 +242,15 @@ export function generateLoginHTML() {
         <form id="loginForm" onsubmit="handleLogin(event)">
           <div class="form-group">
             <label for="password">密碼</label>
-            <input type="password" id="password" name="password" required autofocus>
+            <div class="password-wrapper">
+              <input type="password" id="password" name="password" required autofocus>
+              <button type="button" class="eye-btn" onclick="togglePassword()" title="顯示/隱藏密碼">
+                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
           </div>
           
           <button type="submit" id="loginBtn">登入</button>
@@ -227,6 +263,21 @@ export function generateLoginHTML() {
     </div>
 
     <script>
+      function togglePassword() {
+        const pwdInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        
+        if (pwdInput.type === 'password') {
+          pwdInput.type = 'text';
+          pwdInput.classList.add('password-input');
+          eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+          pwdInput.type = 'password';
+          pwdInput.classList.remove('password-input');
+          eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+      }
+
       async function handleLogin(event) {
         event.preventDefault();
         

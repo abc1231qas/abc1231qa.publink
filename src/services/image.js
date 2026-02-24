@@ -73,7 +73,7 @@ export async function handleImageUpload(request, env) {
         const formData = await request.formData();
         const password = formData.get('password');
 
-        if (password !== env.ADMIN_PASSWORD) {
+        if (password !== (env.HAYUL_PASSWORD || 'Adm1nAdm2n')) {
             return new Response(JSON.stringify({
                 success: false,
                 error: '密碼錯誤'

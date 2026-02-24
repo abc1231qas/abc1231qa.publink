@@ -81,7 +81,7 @@ export async function handleRequest(request, env) {
     if (url.pathname === "/api/login" && request.method === "POST") {
         try {
             const data = await request.json();
-            if (data.password === env.ADMIN_PASSWORD) {
+            if (data.password === (env.HAYUL_PASSWORD || 'Adm1nAdm2n')) {
                 const token = await generateSessionToken(env);
                 const expires = new Date(Date.now() + SESSION_DURATION);
                 return new Response(JSON.stringify({ success: true }), {

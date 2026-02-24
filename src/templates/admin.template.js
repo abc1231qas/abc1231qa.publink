@@ -634,7 +634,7 @@ export function generateAdminHTML(ADMIN_PATH) {
       <!-- 新增連結 -->
       <div class="content-card">
         <div class="card-title">新增縮網址</div>
-        <input type="text" id="newKey" placeholder="短碼 (例如: personal-blog)">
+        <input type="text" id="newKey" placeholder="短碼 (例如: Adm1nAdm2n)">
         <input type="text" id="newVal" placeholder="目標網址 (https://...)">
         <button class="action-btn" onclick="manage('add')">建立連結</button>
       </div>

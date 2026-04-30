@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (for any local tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Build output
+dist/
+build/
+
+# Misc
+*.log
